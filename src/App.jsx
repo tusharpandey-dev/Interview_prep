@@ -1,106 +1,73 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-
-const API_URL = "https://jsonplaceholder.typicode.com/posts";
+import { useState } from "react";
 
 function App() {
-  const [posts, setPosts] = useState([]);
-  const [form, setForm] = useState({ title: "", body: "" });
-  const [editId, setEditId] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const fetchPosts = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get(API_URL);
-      setPosts(res.data.slice(0, 5));
-    } catch (err) {
-      setError("Failed to fetch data");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const productsData = [
+    { id: 1, name: "iPhone", category: "Mobile", price: 800 },
+    { id: 2, name: "Samsung", category: "Mobile", price: 700 },
+    { id: 3, name: "MacBook", category: "Laptop", price: 1500 },
+    { id: 4, name: "HP Laptop", category: "Laptop", price: 1000 },
+  ];
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-  const handleSubmit = async () => {
-    if (!form.title || !form.body) {
-      alert("All fields are required");
-      return;
-    }
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [sortOrder, setSortOrder] = useState("");
 
-    try {
-      if (editId) {
-        await axios.put(`${API_URL}/${editId}`, {
-          ...form,
-          userId: 1,
-        });
-      } else {
-        await axios.post(API_URL, {
-          ...form,
-          userId: 1,
-        });
-      }
 
-      setForm({ title: "", body: "" });
-      setEditId(null);
-      fetchPosts();
-    } catch (err) {
-      setError("Operation failed");
-    }
-  };
-  const deletePost = async (id) => {
-    if (!window.confirm("Are you sure?")) return;
+  const filteredProducts = productsData
+    .filter((product) => {
+      const matchSearch = product.name
+        .toLowerCase()
+        .includes(search.toLowerCase());
 
-    try {
-      await axios.delete(`${API_URL}/${id}`);
-      fetchPosts();
-    } catch (err) {
-      setError("Delete failed");
-    }
-  };
-  const editPost = (post) => {
-    setForm({ title: post.title, body: post.body });
-    setEditId(post.id);
-  };
+      const matchCategory =
+        category === "All" || product.category === category;
+
+      return matchSearch && matchCategory;
+    })
+    .sort((a, b) => {
+      if (sortOrder === "low") return a.price - b.price;
+      if (sortOrder === "high") return b.price - a.price;
+      return 0;
+    });
 
   return (
     <div style={{ padding: 20 }}>
-      <h2>CRUD App (Machine Coding)</h2>
+      <h2>Search | Filter | Sort (Machine Coding)</h2>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {loading && <p>Loading...</p>}
-
-      {/* FORM */}
+      {/* SEARCH */}
       <input
-        placeholder="Title"
-        value={form.title}
-        onChange={(e) => setForm({ ...form, title: e.target.value })}
+        type="text"
+        placeholder="Search product"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
       />
-      <br />
 
-      <input
-        placeholder="Body"
-        value={form.body}
-        onChange={(e) => setForm({ ...form, body: e.target.value })}
-      />
-      <br />
+      {/* FILTER */}
+      <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <option value="All">All</option>
+        <option value="Mobile">Mobile</option>
+        <option value="Laptop">Laptop</option>
+      </select>
 
-      <button onClick={handleSubmit}>
-        {editId ? "Update" : "Add"}
-      </button>
+      {/* SORT */}
+      <select
+        value={sortOrder}
+        onChange={(e) => setSortOrder(e.target.value)}
+      >
+        <option value="">Sort By Price</option>
+        <option value="low">Low → High</option>
+        <option value="high">High → Low</option>
+      </select>
 
       <hr />
 
-      {/* LIST */}
+      {/* PRODUCT LIST */}
       <ul>
-        {posts.map((post) => (
-          <li key={post.id}>
-            <b>{post.title}</b>
-            <br />
-            <button onClick={() => editPost(post)}>Edit</button>
-            <button onClick={() => deletePost(post.id)}>Delete</button>
+        {filteredProducts.length === 0 && <p>No products found</p>}
+
+        {filteredProducts.map((product) => (
+          <li key={product.id}>
+            <b>{product.name}</b> — ${product.price}
           </li>
         ))}
       </ul>
