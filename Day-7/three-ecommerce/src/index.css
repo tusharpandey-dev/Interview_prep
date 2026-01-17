@@ -1,0 +1,50 @@
+body {
+  margin: 0;
+  background: #0b0b0f;
+  color: white;
+  font-family: "Inter", sans-serif;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 60px;
+  position: fixed;
+  width: 100%;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(10px);
+}
+
+.page {
+  display: flex;
+  height: 100vh;
+  padding-top: 80px;
+}
+
+.viewer {
+  width: 65%;
+}
+
+.config {
+  width: 35%;
+  padding: 50px;
+}
+
+.colors span {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 10px;
+  cursor: pointer;
+  border: 2px solid white;
+}
+
+.add {
+  margin-top: 20px;
+  width: 100%;
+  padding: 15px;
+  background: white;
+  color: black;
+  font-weight: bold;
+}
